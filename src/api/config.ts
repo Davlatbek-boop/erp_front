@@ -22,8 +22,32 @@ export function apiConfig() {
     }
   }
 
+  async function putRequest(url: string, body: object = {}) {
+    try {
+      const res = await axiosInstance.put(url, body);
+      Notification("success", "Admin logged succes")
+      return res;
+    } catch (err: any) {
+      console.log(err);
+      Notification("error", err.message);
+    }
+  }
+
+  async function deleteRequest(url: string, params: object= {}) {
+    try {
+      const res = await axiosInstance.delete(url, {params});
+      Notification("success", "Admin logged succes")
+      return res;
+    } catch (err: any) {
+      console.log(err);
+      Notification("error", err.message);
+    }
+  }
+
   return {
     getRequest,
     postRequest,
+    putRequest,
+    deleteRequest
   };
 }

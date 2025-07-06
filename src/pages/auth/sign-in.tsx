@@ -3,6 +3,9 @@ import * as yup from "yup";
 import { authService } from "@service";
 import { Notification } from "../../helpers/notification";
 import type { SignIn } from "../../types";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { setItem } from "@helpers";
 
 // Yup validatsiya sxemasi
 const validationSchema = yup.object().shape({
@@ -18,15 +21,34 @@ const validationSchema = yup.object().shape({
 
 const SignIn = () => {
   const [form] = Form.useForm();
+  const [role, setRole] = useState("teacher"); // default rol
+  const navigate = useNavigate()
 
   const submit = async (values: SignIn) => {
     try {
       await validationSchema.validate(values, { abortEarly: false });
-      // valid bo‘lsa:
-      console.log("Tizimga kirish:", values);
-      authService.signIn(values);
-    } catch (err) {
-      Notification("error", "validatsiyadan o'tmadi")
+      form.setFields([]); // agar oldin xatoliklar bo‘lgan bo‘lsa — tozalaydi
+
+      const payload = values;
+      console.log("Tizimga kirish:", payload);
+      const res = await authService.signIn(payload, role);
+      console.log(res?.status);
+
+      if(res?.status === 201){
+        setItem('access_token', res.data.access_token)
+        setItem('role', role)
+        navigate(`/${role}`)
+      }
+    } catch (err: any) {
+      if (err.inner) {
+        const errorList = err.inner.map((e: any) => ({
+          name: e.path,
+          errors: [e.message],
+        }));
+        form.setFields(errorList);
+      } else {
+        Notification("error", "Validatsiyada xatolik");
+      }
     }
   };
 
@@ -42,24 +64,31 @@ const SignIn = () => {
           onFinish={submit}
           autoComplete="off"
         >
-          <Form.Item
-            label="Email"
-            name="email"
-          >
+          <Form.Item label="Email" name="email">
             <Input
               className="!rounded-md !py-2"
               size="large"
             />
           </Form.Item>
 
-          <Form.Item
-            label="Password"
-            name="password"
-          >
+          <Form.Item label="Password" name="password">
             <Input.Password
               className="!rounded-md !py-2"
               size="large"
             />
+          </Form.Item>
+
+          <Form.Item label="Role">
+            <select
+              className="w-full border rounded-md py-2 px-3"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+            >
+              <option value="teacher">Teacher</option>
+              <option value="student">Student</option>
+              <option value="admin">Admin</option>
+              <option value="lid">Lid</option>
+            </select>
           </Form.Item>
 
           <Form.Item>
