@@ -21,7 +21,7 @@ export const groupService = {
     },
 
     async deleteOneGroup(id:string){
-        // console.log(id, "getonegroup");
+        console.log(id, "getonegroup");
         const res = await apiConfig().deleteRequest(`${ApiUrls.GROUPS}/${id}`)
         return res
     },

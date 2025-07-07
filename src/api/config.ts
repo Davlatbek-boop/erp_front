@@ -1,5 +1,5 @@
 import axiosInstance from ".";
-import { Notification } from "../helpers/notification";
+import { Notification } from "@helpers";
 
 export function apiConfig() {
   async function getRequest(url: string, params: object = {}) {
@@ -14,7 +14,6 @@ export function apiConfig() {
   async function postRequest(url: string, body: object = {}) {
     try {
       const res = await axiosInstance.post(url, body);
-      Notification("success", "Admin logged succes")
       return res;
     } catch (err: any) {
       console.log(err);
@@ -25,7 +24,6 @@ export function apiConfig() {
   async function putRequest(url: string, body: object = {}) {
     try {
       const res = await axiosInstance.put(url, body);
-      Notification("success", "Admin logged succes")
       return res;
     } catch (err: any) {
       console.log(err);
@@ -36,7 +34,6 @@ export function apiConfig() {
   async function deleteRequest(url: string, params: object= {}) {
     try {
       const res = await axiosInstance.delete(url, {params});
-      Notification("success", "Admin logged succes")
       return res;
     } catch (err: any) {
       console.log(err);

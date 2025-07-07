@@ -1,8 +1,8 @@
 import { Form, Input, Button } from "antd";
 import * as yup from "yup";
 import { authService } from "@service";
-import { Notification } from "../../helpers/notification";
-import type { SignIn } from "../../types";
+import { Notification } from "@helpers";
+import type { SignIn } from "@types";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { setItem } from "@helpers";

@@ -25,4 +25,5 @@ export type GetGroups = {
   course?: Course;
   students?: any[];
   teachers?: any[];
+  course_id: number;
 };
