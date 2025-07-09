@@ -1,19 +1,21 @@
 export interface Group {
-    id: number,
-    name: string,
-    course_id: number,
-    status: string,
-    start_date: string,
-    end_date: string
+  id: number;
+  name: string;
+  course_id: number;
+  status: string;
+  start_date: string;
+  end_date: string;
 }
 
 export type Course = {
-    id: number
+  id: number;
   title: string;
   description: string;
   duration: string;
   lesson_duration: string;
+  lessons_in_a_week: number;
   price: number;
+  is_active: boolean;
 };
 
 export type GetGroups = {

@@ -7,4 +7,10 @@ export const authService = {
     const res = await apiConfig().postRequest(`/${role}-auth${ApiUrls.AUTH}`, _model);
     return res;
   },
+
+
+  async signOut(role: string) {
+    const res = await apiConfig().getRequest(`/${role}-auth${ApiUrls.OUT}`);
+    return res;
+  },
 };

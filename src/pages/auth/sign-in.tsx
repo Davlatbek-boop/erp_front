@@ -1,18 +1,15 @@
 import { Form, Input, Button } from "antd";
 import * as yup from "yup";
-import { authService } from "@service";
 import { Notification } from "@helpers";
 import type { SignIn } from "@types";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { setItem } from "@helpers";
+import { useAuth } from "../../hooks";
 
 // Yup validatsiya sxemasi
 const validationSchema = yup.object().shape({
-  email: yup
-    .string()
-    .email("Email noto‘g‘ri")
-    .required("Email majburiy"),
+  email: yup.string().email("Email noto‘g‘ri").required("Email majburiy"),
   password: yup
     .string()
     .min(6, "Parol kamida 6 belgidan iborat bo‘lishi kerak")
@@ -21,24 +18,33 @@ const validationSchema = yup.object().shape({
 
 const SignIn = () => {
   const [form] = Form.useForm();
-  const [role, setRole] = useState("teacher"); // default rol
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const { mutate, isPending } = useAuth();
+  const [role, setRole] = useState("");
 
   const submit = async (values: SignIn) => {
     try {
       await validationSchema.validate(values, { abortEarly: false });
       form.setFields([]); // agar oldin xatoliklar bo‘lgan bo‘lsa — tozalaydi
 
-      const payload = values;
-      console.log("Tizimga kirish:", payload);
-      const res = await authService.signIn(payload, role);
-      console.log(res?.status);
+      // const payload = values;
+      // console.log("Tizimga kirish:", payload);
+      // const res = await authService.signIn(payload, role);
+      // console.log(res?.status);
 
-      if(res?.status === 201){
-        setItem('access_token', res.data.access_token)
-        setItem('role', role)
-        navigate(`/${role}`)
-      }
+      const payload = values;
+      mutate(
+        { data: payload, role },
+        {
+          onSuccess: (res: any) => {
+            if (res?.status === 201) {
+              setItem("access_token", res.data.access_token);
+              setItem("role", role);
+              navigate(`/${role}/group`);
+            }
+          },
+        }
+      );
     } catch (err: any) {
       if (err.inner) {
         const errorList = err.inner.map((e: any) => ({
@@ -55,7 +61,9 @@ const SignIn = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg">
-        <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">Sign In</h2>
+        <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
+          Sign In
+        </h2>
 
         <Form
           form={form}
@@ -65,17 +73,11 @@ const SignIn = () => {
           autoComplete="off"
         >
           <Form.Item label="Email" name="email">
-            <Input
-              className="!rounded-md !py-2"
-              size="large"
-            />
+            <Input className="!rounded-md !py-2" size="large" />
           </Form.Item>
 
           <Form.Item label="Password" name="password">
-            <Input.Password
-              className="!rounded-md !py-2"
-              size="large"
-            />
+            <Input.Password className="!rounded-md !py-2" size="large" />
           </Form.Item>
 
           <Form.Item label="Role">
@@ -96,6 +98,7 @@ const SignIn = () => {
               type="primary"
               htmlType="submit"
               className="w-full h-10 rounded-md text-white bg-blue-600 hover:bg-blue-700"
+              loading={isPending}
             >
               Sign In
             </Button>

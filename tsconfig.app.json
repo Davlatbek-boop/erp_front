@@ -17,6 +17,7 @@
   "@pages": ["./src/pages"],
   "@service": ["./src/service"],
   "@helpers": ["./src/helpers"],
+  "@hooks": ["./src/hooks"],
 },
 
 

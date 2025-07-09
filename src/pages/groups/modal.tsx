@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Modal, Button, Form, Input, Select, DatePicker } from "antd";
 import dayjs from "dayjs";
 import type { Course, Group } from "@types";
-import { groupService } from "@service";
+import { useGroup } from "@hooks";
 
 type Props = {
   courses: Course[];
@@ -15,9 +15,11 @@ const { Option } = Select;
 const AddGroupModal = ({ courses }: Props) => {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
-
   const showModal = () => setOpen(true);
   const handleCancel = () => setOpen(false);
+
+  const {useGroupCreate} = useGroup()
+  const {mutate, isPending} = useGroupCreate()
 
   const handleOk = () => {
     form
@@ -28,7 +30,7 @@ const AddGroupModal = ({ courses }: Props) => {
           start_date: dayjs(values.start_date).format("YYYY-MM-DD"),
           end_date: dayjs(values.end_date).format("YYYY-MM-DD"),
         };
-        groupService.createGroup(payload);
+        mutate(payload)
         form.resetFields();
         setOpen(false);
       })
@@ -41,8 +43,9 @@ const AddGroupModal = ({ courses }: Props) => {
     <div className="mb-6">
       <div className="flex justify-center">
         <Button
-          className="bg-blue-600 text-white hover:bg-blue-700 mt-5"
+          className="bg-blue-600 text-white hover:bg-blue-700"
           onClick={showModal}
+          loading={isPending}
         >
           Add Group
         </Button>

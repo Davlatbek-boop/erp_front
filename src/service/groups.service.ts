@@ -25,4 +25,9 @@ export const groupService = {
         const res = await apiConfig().deleteRequest(`${ApiUrls.GROUPS}/${id}`)
         return res
     },
+
+    async updateGroup(model: any){
+        const res = await apiConfig().deleteRequest(`${ApiUrls.GROUPS}/${model.id}`, model)
+        return res
+    },
 }
