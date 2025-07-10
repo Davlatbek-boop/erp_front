@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Students } from "@types";
+import type { CreateStudent } from "@types";
 import { studentService } from "../service/student.service";
 
 interface props {
   id: number;
-  data: Students;
+  data: CreateStudent;
 }
 
 export const useStudents = () => {
@@ -16,7 +16,7 @@ export const useStudents = () => {
 
   const useStudentCreate = () => {
     return useMutation({
-      mutationFn: async (data: Students) => {
+      mutationFn: async (data: CreateStudent) => {
         studentService.createStudent(data);
       },
       onSuccess: () => {

@@ -21,7 +21,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { Header } from "antd/es/layout/layout";
 import { FiLogOut  } from "react-icons/fi";
 import { MdGroups } from "react-icons/md";
-import { FaGraduationCap, FaBuilding  } from "react-icons/fa";
+import { FaGraduationCap, FaBuilding, FaUserGraduate  } from "react-icons/fa";
 import { getItem, removeItem } from "../../helpers";
 import { authService } from "../../service";
 
@@ -31,6 +31,7 @@ const items: MenuItem[] = [
   { key: "group", icon: <MdGroups  />, label: "Groups" },
   { key: "course", icon: <FaGraduationCap />, label: "Courses" },
   { key: "branch", icon: <FaBuilding  />, label: "Branches" },
+  { key: "student", icon: <FaUserGraduate   />, label: "Students" },
 ];
 
 const Admin: React.FC = () => {
