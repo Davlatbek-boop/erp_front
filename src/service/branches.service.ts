@@ -18,8 +18,8 @@ export const branchService = {
     return res;
   },
 
-  async updateBranch(model: Branch) {
-    const res = await apiConfig().patchRequest(`${ApiUrls.BRANCHES}/${model.id}`, model);
+  async updateBranch(model: Branch, id: number) {
+    const res = await apiConfig().patchRequest(`${ApiUrls.BRANCHES}/${id}`, model);
     return res;
   },
 

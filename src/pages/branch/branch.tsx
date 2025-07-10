@@ -7,102 +7,22 @@ import { useState } from "react";
 import { FiEdit, FiTrash } from "react-icons/fi";
 import { PageHeader } from "@ant-design/pro-layout";
 
-const columns: ColumnsType<Branch> = [
-  {
-    title: "ID",
-    dataIndex: "id",
-    key: "id",
-  },
-  {
-    title: "Name",
-    dataIndex: "name",
-    key: "name",
-  },
-  {
-    title: "Address",
-    dataIndex: "address",
-    key: "address",
-  },
-  {
-    title: "Call Number",
-    dataIndex: "call_number",
-    key: "call_number",
-  },
-  {
-    title: "Action",
-    key: "action",
-    align: "center",
-    render: (_: any, record: Branch) => (
-      <Space size="middle">
-        <Button
-          // onClick={() => editCourse(record)}
-          style={{
-            color: "#1890ff",
-            borderColor: "#1890ff",
-            fontWeight: 500,
-            borderRadius: "6px",
-            padding: "6px 16px",
-            transition: "all 0.3s ease",
-          }}
-          onMouseOver={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-              "#1890ff";
-            (e.currentTarget as HTMLButtonElement).style.color = "#fff";
-          }}
-          onMouseOut={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-              "#fff";
-            (e.currentTarget as HTMLButtonElement).style.color = "#1890ff";
-          }}
-          icon={<FiEdit />}
-        ></Button>
-
-        <Popconfirm
-          title="Siz rostdan ham ushbu guruhni o‘chirmoqchimisiz?"
-          // onConfirm={() => deleteGroup(record.id)}
-          okText="Ha"
-          cancelText="Yo‘q"
-        >
-          <Button
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              padding: "6px 16px",
-              backgroundColor: "#fff",
-              color: "red",
-              border: "1px solid red",
-              borderRadius: "6px",
-              fontWeight: 500,
-              cursor: "pointer",
-              transition: "all 0.3s ease",
-            }}
-            onMouseOver={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-                "red";
-              (e.currentTarget as HTMLButtonElement).style.color = "#fff";
-            }}
-            onMouseOut={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-                "#fff";
-              (e.currentTarget as HTMLButtonElement).style.color = "red";
-            }}
-            icon={<FiTrash />}
-          ></Button>
-        </Popconfirm>
-      </Space>
-    ),
-  },
-];
-
 const Branch = () => {
-  const { data, useBranchCreate } = useBranch();
-
+  const { data, useBranchCreate, useBranchDelete, useBranchUpdate } =
+    useBranch();
+  const [title, setTitle] = useState("Add Branch");
   const [isOpen, setIsOpen] = useState(false);
+  const [branch, setBranch] = useState<Branch | null>(null);
+  const [id, setId] = useState<number>(0);
 
-  const handleAdd = () => {
+  function handleAdd() {
+    setTitle("Add Branch");
+    setBranch(null);
     setIsOpen(true);
-  };
+  }
 
   const handleCancel = () => {
+    setBranch(null);
     setIsOpen(false);
   };
 
@@ -113,6 +33,112 @@ const Branch = () => {
     createMutate(values);
     setIsOpen(false);
   };
+
+  const { mutate: deleteMutate } = useBranchDelete();
+
+  const deleteBranch = (id: number) => {
+    deleteMutate(id);
+  };
+
+  const { mutate: updateMutate } = useBranchUpdate();
+
+  const editBranch = (branch: Branch) => {
+    setBranch(branch);
+    setId(branch.id!);
+    setIsOpen(true);
+  };
+
+  const updateBranch = (branch: Branch) => {
+    console.log(branch);
+    updateMutate({id, data: branch});
+    handleCancel()
+  };
+
+  const columns: ColumnsType<Branch> = [
+    {
+      title: "ID",
+      dataIndex: "id",
+      key: "id",
+    },
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Address",
+      dataIndex: "address",
+      key: "address",
+    },
+    {
+      title: "Call Number",
+      dataIndex: "call_number",
+      key: "call_number",
+    },
+    {
+      title: "Action",
+      key: "action",
+      align: "center",
+      render: (_: any, record: Branch) => (
+        <Space size="middle">
+          <Button
+            onClick={() => editBranch(record)}
+            style={{
+              color: "#1890ff",
+              borderColor: "#1890ff",
+              fontWeight: 500,
+              borderRadius: "6px",
+              padding: "6px 16px",
+              transition: "all 0.3s ease",
+            }}
+            onMouseOver={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                "#1890ff";
+              (e.currentTarget as HTMLButtonElement).style.color = "#fff";
+            }}
+            onMouseOut={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                "#fff";
+              (e.currentTarget as HTMLButtonElement).style.color = "#1890ff";
+            }}
+            icon={<FiEdit />}
+          ></Button>
+
+          <Popconfirm
+            title="Siz rostdan ham ushbu guruhni o‘chirmoqchimisiz?"
+            onConfirm={() => deleteBranch(record.id!)}
+            okText="Ha"
+            cancelText="Yo‘q"
+          >
+            <Button
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                padding: "6px 16px",
+                backgroundColor: "#fff",
+                color: "red",
+                border: "1px solid red",
+                borderRadius: "6px",
+                fontWeight: 500,
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+              }}
+              onMouseOver={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                  "red";
+                (e.currentTarget as HTMLButtonElement).style.color = "#fff";
+              }}
+              onMouseOut={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                  "#fff";
+                (e.currentTarget as HTMLButtonElement).style.color = "red";
+              }}
+              icon={<FiTrash />}
+            ></Button>
+          </Popconfirm>
+        </Space>
+      ),
+    },
+  ];
 
   return (
     <>
@@ -125,10 +151,12 @@ const Branch = () => {
         />
         <BranchModal
           open={isOpen}
-          title="Add Branch"
+          title={title}
+          initialValues={branch}
           onCancel={handleCancel}
           onSubmit={handleSubmit}
           handleAdd={handleAdd}
+          updateBranch={updateBranch}
         />
       </div>
       <Table
@@ -138,7 +166,7 @@ const Branch = () => {
         }))}
         columns={columns}
         bordered
-        pagination={{ pageSize: 5 }}
+        pagination={{ pageSize: 10 }}
         style={{ margin: 24 }}
       />
     </>

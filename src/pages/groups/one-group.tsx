@@ -33,7 +33,7 @@ const OneGroup = () => {
 
   const deleteGroup = async (id: string) => {
     try {
-      await groupService.deleteOneGroup(id);
+      await groupService.deleteOneGroup(+id);
       message.success("Guruh muvaffaqiyatli o‘chirildi");
       navigate(-1); // or navigate('/groups')
     } catch (error) {

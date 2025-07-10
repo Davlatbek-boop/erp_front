@@ -60,7 +60,7 @@ const Admin: React.FC = () => {
         {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
       </Button>
       <Menu
-        defaultSelectedKeys={["group"]}
+        defaultSelectedKeys={[location.pathname]}
         mode="inline"
         theme="dark"
         onClick={({key})=> navigate(key)}

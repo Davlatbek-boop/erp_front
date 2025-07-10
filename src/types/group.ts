@@ -8,24 +8,23 @@ export interface Group {
 }
 
 export type Course = {
-  id: number;
+  id?: number;
   title: string;
   description: string;
   duration: string;
   lesson_duration: string;
   lessons_in_a_week: number;
   price: number;
-  is_active: boolean;
 };
 
 export type GetGroups = {
-  id: number;
+  id?: number;
   name: string;
   status: string;
   start_date: string;
   end_date: string;
   course?: Course;
-  students?: any[];
-  teachers?: any[];
+  students?: any;
+  teachers?: any;
   course_id: number;
 };

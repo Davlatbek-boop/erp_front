@@ -1,42 +1,70 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal, Button, Form, Input, Select, DatePicker } from "antd";
 import dayjs from "dayjs";
-import type { Course, Group } from "@types";
-import { useGroup } from "@hooks";
+import type { Course, GetGroups } from "@types";
+import { useCourses } from "@hooks";
 
-type Props = {
-  courses: Course[];
-  setGroup: React.Dispatch<React.SetStateAction<Group[]>>;
-};
-
+interface Props {
+  open: boolean;
+  title: string;
+  onCancel: () => void;
+  openModal: () => void;
+  onSubmit: (values: GetGroups) => void;
+  initialValues: GetGroups | null;
+  updateGroup: (values: GetGroups, id: number) => void;
+  id: number | undefined;
+}
 
 const { Option } = Select;
 
-const AddGroupModal = ({ courses }: Props) => {
-  const [open, setOpen] = useState(false);
+const AddGroupModal = ({
+  open,
+  title,
+  onSubmit,
+  onCancel,
+  openModal,
+  initialValues,
+  updateGroup,
+  id,
+}: Props) => {
   const [form] = Form.useForm();
-  const showModal = () => setOpen(true);
-  const handleCancel = () => setOpen(false);
 
-  const {useGroupCreate} = useGroup()
-  const {mutate, isPending} = useGroupCreate()
+  useEffect(() => {
+    if (initialValues) {
+      const formattedValues = {
+        ...initialValues,
+        start_date: initialValues.start_date
+          ? dayjs(initialValues.start_date)
+          : null,
+        end_date: initialValues.end_date ? dayjs(initialValues.end_date) : null,
+      };
+      form.setFieldsValue(formattedValues);
+    } else {
+      form.resetFields(); // 🔄 yangi qo‘shishda formni tozalash
+      // onCancel();
+    }
+  }, [initialValues, open]);
+
+  const [courses, setCourses] = useState<Course[]>([]);
+  const { data } = useCourses();
+
+  useEffect(() => {
+    if (data?.data.courses) {
+      setCourses(data.data.courses);
+    }
+  }, [data]);
 
   const handleOk = () => {
-    form
-      .validateFields()
-      .then((values) => {
-        const payload = {
-          ...values,
-          start_date: dayjs(values.start_date).format("YYYY-MM-DD"),
-          end_date: dayjs(values.end_date).format("YYYY-MM-DD"),
-        };
-        mutate(payload)
-        form.resetFields();
-        setOpen(false);
-      })
-      .catch((info) => {
-        console.log("Validate Failed:", info);
-      });
+    form.validateFields().then((values: GetGroups) => {
+      if (initialValues) {
+        // console.log("asdfasdf", values, id);
+        updateGroup(values, id!);
+        // console.log("valuesss", values);
+      } else {
+        onSubmit(values);
+      }
+      form.resetFields();
+    });
   };
 
   return (
@@ -44,19 +72,17 @@ const AddGroupModal = ({ courses }: Props) => {
       <div className="flex justify-center">
         <Button
           className="bg-blue-600 text-white hover:bg-blue-700"
-          onClick={showModal}
-          loading={isPending}
+          onClick={openModal}
         >
           Add Group
         </Button>
-  
       </div>
       <Modal
-        title="Create New Group"
+        title={title}
         open={open}
         onOk={handleOk}
-        onCancel={handleCancel}
-        okText="Create"
+        onCancel={onCancel}
+        okText="Save"
         cancelText="Cancel"
       >
         <Form

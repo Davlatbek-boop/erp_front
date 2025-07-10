@@ -1,6 +1,6 @@
 import { Modal, Form, Input, InputNumber, Button, Select } from "antd";
 const { Option } = Select;
-import type { Course } from "../../types";
+import type { Course } from "@types";
 import { useEffect } from "react";
 
 interface Props {
@@ -9,33 +9,42 @@ interface Props {
   onCancel: () => void;
   onSubmit: (values: Course) => void;
   openModal: () => void;
-  initialValues: Course | null
-  updateSubmit: (values: Course, id:number) => void
-  id: number
+  initialValues: Course | null;
+  updateCourse: (values: Course, id: number) => void;
+  id: number;
 }
 
-const CourseModal = ({ open, title, onCancel, onSubmit, openModal, initialValues, updateSubmit, id }: Props) => {
+const CourseModal = ({
+  open,
+  title,
+  onCancel,
+  onSubmit,
+  openModal,
+  initialValues,
+  updateCourse,
+  id,
+}: Props) => {
   const [form] = Form.useForm();
 
-
-   useEffect(() => {
+  useEffect(() => {
     if (initialValues) {
       form.setFieldsValue(initialValues); // 🧠 course ni formga yuklash
     } else {
       form.resetFields(); // 🔄 yangi qo‘shishda formni tozalash
-      onCancel();
+      // onCancel();
     }
   }, [initialValues, open]);
 
-
   const handleOk = () => {
     form.validateFields().then((values: Course) => {
-        if(initialValues){
-            // console.log(values, id);
-            updateSubmit(values, id)
-        }else{
-            onSubmit(values)
-        }
+      if (initialValues) {
+        // console.log("asdfasdf", values, id);
+        updateCourse(values, id);
+
+        // console.log("valuesss", values);
+      } else {
+        onSubmit(values);
+      }
       form.resetFields();
     });
   };
@@ -111,8 +120,8 @@ const CourseModal = ({ open, title, onCancel, onSubmit, openModal, initialValues
             ]}
           >
             <Select placeholder="Select lessons per week">
-              <Option value={`${3}`}>3 ta dars</Option>
-              <Option value={`${5}`}>5 ta dars</Option>
+              <Option value={3}>3 ta dars</Option>
+              <Option value={5}>5 ta dars</Option>
             </Select>
           </Form.Item>
 

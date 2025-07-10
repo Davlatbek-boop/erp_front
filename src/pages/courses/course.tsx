@@ -1,10 +1,10 @@
-import { Button, Popconfirm, Space, Table, Tag } from "antd";
-import { useCourses } from "../../hooks/useCourse";
-import type { Course } from "../../types";
 import { useEffect, useState } from "react";
-import { FiTrash, FiEdit } from "react-icons/fi";
-import CourseModal from "./modal";
+import { Button, Popconfirm, Space, Table, Tag } from "antd";
 import { PageHeader } from "@ant-design/pro-layout";
+import { FiTrash, FiEdit } from "react-icons/fi";
+import { useCourses } from "@hooks";
+import type { Course } from "@types";
+import CourseModal from "./modal";
 
 const CourseTable = () => {
   const { data, useCourseCreate, useCourseDelete, useCourseUpdate } =
@@ -16,6 +16,7 @@ const CourseTable = () => {
   const [modalTitle, setModalTitle] = useState("Add Course");
 
   const openModal = () => {
+    console.log("object");
     setModalTitle("Add Course");
     setCourse(null);
     setIsModalOpen(true);
@@ -29,11 +30,10 @@ const CourseTable = () => {
   const { mutate: createMutate } = useCourseCreate();
 
   const handleSubmit = (values: Course) => {
-    console.log("Formdan kelgan qiymatlar:", values);
+    // console.log("Formdan kelgan qiymatlar:", values);
     createMutate({
       ...values,
       lessons_in_a_week: +values.lessons_in_a_week,
-      is_active: true,
     });
     setIsModalOpen(false);
     // mutate(values) — agar create API bo‘lsa shu yerda ishlatiladi
@@ -52,22 +52,19 @@ const CourseTable = () => {
   };
 
   const editCourse = (course: Course) => {
-    console.log(course);
+    // console.log(course);
     setModalTitle("Update Course");
     setCourse(course);
-    setId(course.id);
+    setId(course.id!);
     setIsModalOpen(true);
   };
 
   const { mutate: updateMutate } = useCourseUpdate();
 
   const updateCourse = (course: Course, id: number) => {
-    // console.log(course, id);
-    updateMutate({
-      ...course,
-      lessons_in_a_week: +course.lessons_in_a_week,
-      id,
-    });
+    // console.log(course);
+    updateMutate({ id, data: course });
+    closeModal();
   };
 
   const columns = [
@@ -75,7 +72,6 @@ const CourseTable = () => {
       title: "Title",
       dataIndex: "title",
       key: "title",
-      
     },
     {
       title: "Description",
@@ -144,7 +140,7 @@ const CourseTable = () => {
 
           <Popconfirm
             title="Siz rostdan ham ushbu guruhni o‘chirmoqchimisiz?"
-            onConfirm={() => deleteGroup(record.id)}
+            onConfirm={() => deleteGroup(record.id!)}
             okText="Ha"
             cancelText="Yo‘q"
           >
@@ -193,7 +189,7 @@ const CourseTable = () => {
           title={modalTitle}
           onCancel={closeModal}
           onSubmit={handleSubmit}
-          updateSubmit={updateCourse}
+          updateCourse={updateCourse}
           openModal={openModal}
           initialValues={course}
           id={id}
@@ -205,7 +201,7 @@ const CourseTable = () => {
         columns={columns}
         bordered
         style={{ margin: 24 }}
-        pagination={{ pageSize: 5 }}
+        pagination={{ pageSize: 10 }}
       />
     </>
   );

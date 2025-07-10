@@ -1,90 +1,74 @@
 import React, { useEffect, useState } from "react";
-import { Button, Card, Popconfirm, Space, Table, Tag } from "antd";
-import type { TableProps } from "antd";
-import { courseService, groupService } from "@service";
-import type { Group, Course, GetGroups } from "@types";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Button, Popconfirm, Space, Table } from "antd";
+import type { Group, GetGroups } from "@types";
+import { Outlet } from "react-router-dom";
 import AddGroupModal from "./modal";
 import { PageHeader } from "@ant-design/pro-layout";
-import { FiTrash } from "react-icons/fi";
-
-interface DataType {
-  key: string;
-  title: string;
-  description: string;
-  duration: number;
-  lesson_duration: string;
-  price: number;
-  start_date: string;
-  end_date: string;
-  group_name: string;
-  students: number;
-  teachers: number;
-  tags: string[];
-}
+import { FiEdit, FiTrash } from "react-icons/fi";
+import { useGroup } from "@hooks";
 
 const Group: React.FC = () => {
-  const [, setGroups] = useState<GetGroups[]>([]);
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [tableData, setTableData] = useState<DataType[]>([]);
-  const navigate = useNavigate();
+  const [groups, setGroups] = useState<GetGroups[]>([]);
+  const { data, useGroupDelete, useGroupUpdate, useGroupCreate } = useGroup();
+  const [modalTitle, setModalTitle] = useState("Add Group");
+  const [group, setGroup] = useState<GetGroups | null>(null);
+  const [id, setId] = useState<number>();
 
-  const toOneGroup = (id: number) => {
-    navigate(`${id}`);
-  };
+  const [open, setOpen] = useState(false);
+  const showModal = () => {
+    setModalTitle("Add Group")
+    setGroup(null)
+    setOpen(true)
+  }
+  const handleCancel = () => {
+    setGroup(null)
+    setOpen(false);
+  }
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [groupRes, courseRes] = await Promise.all([
-          groupService.getGroups(),
-          courseService.getCourses(),
-        ]);
+    if (data?.data.data) {
+      setGroups(data.data.data);
+    }
+  }, [data]);
 
-        const groupData: GetGroups[] = groupRes?.data?.data || [];
-        const courseData: Course[] = courseRes?.data?.courses || [];
-        setGroups(groupData);
-        setCourses(courseData);
 
-        // group + course ma’lumotlarini birlashtirish
-        const mergedData: DataType[] = groupData.map((group) => {
-          const course = courseData.find((c) => c.id == group?.course_id);
+  const { mutate: createMutate } = useGroupCreate()
 
-          return {
-            key: String(group.id),
-            title: course?.title || "Nomaʼlum",
-            description: course?.description || "",
-            duration: Number(course?.duration) || 0,
-            lesson_duration: course?.lesson_duration || "",
-            price: course?.price || 0,
-            start_date: group.start_date || "",
-            end_date: group.end_date || "",
-            group_name: group.name || "",
-            students: group.students?.length || 0,
-            teachers: group.teachers?.length || 0,
-            tags: ["group"], // kerak bo‘lsa boshqa taglar ham yozing
-          };
-        });
 
-        setTableData(mergedData);
-      } catch (error) {
-        console.error("Xatolik:", error);
-      }
+  const handleSubmit = (values: GetGroups) => {
+    // console.log(values);
+      createMutate(values);
+      setOpen(false);
     };
 
-    fetchData();
-  }, []);
+  const { mutate: mutateUpdate } = useGroupUpdate();
 
-  const deleteGroup = async (id: string) => {
+  const updateGroup = (group: GetGroups, id: number) => {
+      // console.log(course);
+      mutateUpdate({ id, data: group });
+      handleCancel();
+    };
+
+  const editGroup = (group: GetGroups) => {
+    console.log("group1", group);
+
+    setModalTitle("Update Group");
+    setGroup(group);
+    setId(group.id);
+    setOpen(true);
+  };
+
+  const { mutate: deleteMutate } = useGroupDelete();
+
+  const deleteGroup = async (id: number) => {
     try {
-      await groupService.deleteOneGroup(id);
-      navigate(-1);
+      deleteMutate(id);
     } catch (error) {
       console.log(error);
     }
   };
 
-  const columns: TableProps<DataType>["columns"] = [
+  const columns = [
     { title: "Title", dataIndex: "title", key: "title" },
     { title: "Description", dataIndex: "description", key: "description" },
     { title: "Duration", dataIndex: "duration", key: "duration" },
@@ -99,32 +83,54 @@ const Group: React.FC = () => {
     { title: "Group Name", dataIndex: "group_name", key: "group_name" },
     { title: "Students", dataIndex: "students", key: "students" },
     { title: "Teachers", dataIndex: "teachers", key: "teachers" },
-    {
-      title: "Tags",
-      key: "tags",
-      dataIndex: "tags",
-      render: (_, { tags }) => (
-        <>
-          {tags.map((tag) => {
-            let color = tag.length > 5 ? "geekblue" : "green";
-            if (tag === "loser") color = "volcano";
-            return (
-              <Tag color={color} key={tag}>
-                {tag.toUpperCase()}
-              </Tag>
-            );
-          })}
-        </>
-      ),
-    },
+    // {
+    //   title: "Tags",
+    //   key: "tags",
+    //   dataIndex: "tags",
+    //   render: (_, { tags }) => (
+    //     <>
+    //       {tags.map((tag) => {
+    //         let color = tag.length > 5 ? "geekblue" : "green";
+    //         if (tag === "loser") color = "volcano";
+    //         return (
+    //           <Tag color={color} key={tag}>
+    //             {tag.toUpperCase()}
+    //           </Tag>
+    //         );
+    //       })}
+    //     </>
+    //   ),
+    // },
     {
       title: "Action",
       key: "action",
-      render: (_, record) => (
+      render: (_: any, record: GetGroups) => (
         <Space size="middle">
+          <Button
+            onClick={() => editGroup(record)}
+            style={{
+              color: "#1890ff",
+              borderColor: "#1890ff",
+              fontWeight: 500,
+              borderRadius: "6px",
+              padding: "6px 16px",
+              transition: "all 0.3s ease",
+            }}
+            onMouseOver={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                "#1890ff";
+              (e.currentTarget as HTMLButtonElement).style.color = "#fff";
+            }}
+            onMouseOut={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                "#fff";
+              (e.currentTarget as HTMLButtonElement).style.color = "#1890ff";
+            }}
+            icon={<FiEdit />}
+          ></Button>
           <Popconfirm
             title="Siz rostdan ham ushbu guruhni o‘chirmoqchimisiz?"
-            onConfirm={() => deleteGroup(record.key)}
+            onConfirm={() => deleteGroup(record.id!)}
             okText="Ha"
             cancelText="Yo‘q"
           >
@@ -168,19 +174,36 @@ const Group: React.FC = () => {
           extra={[]}
         />
 
-        <AddGroupModal courses={courses} setGroup={setGroups} />
+        <AddGroupModal
+          open={open}
+          title={modalTitle}
+          onCancel={handleCancel}
+          onSubmit={handleSubmit}
+          updateGroup={updateGroup}
+          openModal={showModal}
+          initialValues={group}
+          id={id}
+        />
       </div>
 
-      <Table<DataType>
+      <Table<GetGroups>
         columns={columns}
-        dataSource={tableData}
-        pagination={{ pageSize: 5 }}
+        dataSource={groups.map((group) => ({
+          ...group,
+          title: group.course?.title,
+          description: group.course?.description,
+          duration: group.course?.duration,
+          lesson_duration: group.course?.lesson_duration,
+          price: group.course?.price,
+          group_name: group.name,
+          teachers: group.teachers.length,
+          students: group.students.length,
+          key: group.id,
+        }))}
+        pagination={{ pageSize: 10 }}
         bordered
         style={{ margin: 24 }}
         rowClassName="hover:bg-green-50 cursor-pointer"
-        onRow={(record) => ({
-          onClick: () => toOneGroup(Number(record.key)),
-        })}
       />
 
       <Outlet />

@@ -18,9 +18,9 @@ export const courseService = {
     return res;
   },
 
-  async updateCourse(model: Course) {
-    console.log("model",model);
-    const res = await apiConfig().patchRequest(`${ApiUrls.COURSES}/${model.id}`, model);
+  async updateCourse(model: Course, id:number) {
+    // console.log("model",model, id);
+    const res = await apiConfig().patchRequest(`${ApiUrls.COURSES}/${id}`, model);
     return res;
   },
 
